@@ -92,6 +92,50 @@ void mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const cha
 	os_free(dataBuf);
 }
 
+/******************************************************************************
+ * FunctionName : user_rf_cal_sector_set
+ * Description  : SDK just reversed 4 sectors, used for rf init data and paramters.
+ *                We add this function to force users to set rf cal sector, since
+ *                we don't know which sector is free in user's application.
+ *                sector map for last several sectors : ABCCC
+ *                A : rf cal
+ *                B : rf init data
+ *                C : sdk parameters
+ * Parameters   : none
+ * Returns      : rf cal sector
+*******************************************************************************/
+uint32 user_rf_cal_sector_set(void)
+{
+    enum flash_size_map size_map = system_get_flash_size_map();
+
+    uint32 rf_cal_sec = 0;
+
+    switch (size_map) {
+        case FLASH_SIZE_4M_MAP_256_256: // 0
+            rf_cal_sec = 128 - 5; // x80 * x1000 = x80000
+            break;
+
+        case FLASH_SIZE_8M_MAP_512_512: // 1
+            rf_cal_sec = 256 - 5; // x100 * x1000 = x100000
+            break;
+
+        case FLASH_SIZE_16M_MAP_512_512: // 3
+        case FLASH_SIZE_16M_MAP_1024_1024: // 5
+            rf_cal_sec = 512 - 5; // x200 * x1000 = x200000
+            break;
+
+        case FLASH_SIZE_32M_MAP_512_512: // 4
+        case FLASH_SIZE_32M_MAP_1024_1024: // 6
+            rf_cal_sec = 1024 - 5; // x200 * x1000 = x400000
+            break;
+
+        default:
+            rf_cal_sec = 0;
+            break;
+    }
+
+    return rf_cal_sec;
+}
 
 void user_init(void)
 {

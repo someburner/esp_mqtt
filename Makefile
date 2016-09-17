@@ -9,8 +9,6 @@
 # relative to the project directory
 BUILD_BASE	= build
 FW_BASE = firmware
-ESPTOOL = tools/esptool/esptool.py
-
 
 # name for the target project
 TARGET		= app
@@ -42,7 +40,7 @@ ifeq ($(OS),Windows_NT)
 		OBJCOPY = xt-objcopy
 		#MAKE = xt-make
 		CCFLAGS += -Os --rename-section .text=.irom0.text --rename-section .literal=.irom0.literal
-	else 
+	else
 		# It is gcc, may be cygwin
 		# Can we use -fdata-sections?
 		CCFLAGS += -Os -ffunction-sections -fno-jump-tables
@@ -65,15 +63,22 @@ else
 # We are under other system, may be Linux. Assume using gcc.
 	# Can we use -fdata-sections?
 	ESPPORT ?= /dev/ttyUSB0
-	SDK_BASE	?= /esptools/esp_iot_sdk_v1.3.0
+	OPEN_SDK_BASE ?= /home/jeffrey/esp-open-sdk-1.5.4.1
+	SDK_BASE	?= $(OPEN_SDK_BASE)/sdk
+	XTENSA_TOOLS_ROOT ?= $(OPEN_SDK_BASE)/xtensa-lx106-elf/bin/
 
 	CCFLAGS += -Os -ffunction-sections -fno-jump-tables
-	AR = xtensa-lx106-elf-ar
-	CC = xtensa-lx106-elf-gcc
-	LD = xtensa-lx106-elf-gcc
-	NM = xtensa-lx106-elf-nm
-	CPP = xtensa-lx106-elf-cpp
-	OBJCOPY = xtensa-lx106-elf-objcopy
+	AR = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-ar
+	CC = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
+	LD = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-gcc
+	NM = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-nm
+	CPP = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-cpp
+	OBJCOPY = $(XTENSA_TOOLS_ROOT)xtensa-lx106-elf-objcopy
+
+
+	ESPTOOL = /home/jeffrey/ESP8266/esp-flume/tools/esptool.py
+	ESPTOOLMAKE := $(XTENSA_TOOLS_ROOT)
+
     UNAME_S := $(shell uname -s)
 
     ifeq ($(UNAME_S),Linux)
@@ -175,7 +180,7 @@ all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
 $(FW_FILE_1): $(TARGET_OUT)
 	$(vecho) "FW $@"
 	$(ESPTOOL) elf2image $< -o $(FW_BASE)/
-	
+
 $(FW_FILE_2): $(TARGET_OUT)
 	$(vecho) "FW $@"
 	$(ESPTOOL) elf2image $< -o $(FW_BASE)/

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   mqtt_msg.h
  * Author: Minh Tuan
  *
@@ -90,7 +90,7 @@ typedef struct mqtt_connect_info
   char* password;
   char* will_topic;
   char* will_message;
-  int keepalive;
+  uint32_t keepalive;
   int will_qos;
   int will_retain;
   int clean_session;
@@ -127,4 +127,3 @@ mqtt_message_t* ICACHE_FLASH_ATTR mqtt_msg_disconnect(mqtt_connection_t* connect
 #endif
 
 #endif	/* MQTT_MSG_H */
-
